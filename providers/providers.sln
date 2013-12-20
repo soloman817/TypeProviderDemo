@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0F1E4363-D277-405D-B568-06CF16475B55}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.TypeProvider01", "Demo.TypeProvider01\Demo.TypeProvider01.fsproj", "{5B292225-0076-4D2F-BD83-B87F468A2F21}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.TypeProvider02", "Demo.TypeProvider02\Demo.TypeProvider02.fsproj", "{B6D6F47C-C6C1-4B9B-B5E9-726CD4777DE1}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.TypeProvider03", "Demo.TypeProvider03\Demo.TypeProvider03.fsproj", "{E1CFD23B-256A-4BB4-9BBF-950A80B54221}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonProviderImplementation", "CommonProviderImplementation", "{012F0A75-BF45-4C2C-9F31-E4C1DA63E73C}"
+	ProjectSection(SolutionItems) = preProject
+		CommonProviderImplementation\AssemblyReplacer.fs = CommonProviderImplementation\AssemblyReplacer.fs
+		CommonProviderImplementation\AssemblyResolver.fs = CommonProviderImplementation\AssemblyResolver.fs
+		CommonProviderImplementation\ProvidedTypes.fs = CommonProviderImplementation\ProvidedTypes.fs
+		CommonProviderImplementation\ProvidedTypes.fsi = CommonProviderImplementation\ProvidedTypes.fsi
+	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.TypeProvider04", "Demo.TypeProvider04\Demo.TypeProvider04.fsproj", "{53387B3C-C59F-4B51-BBCF-3C80C4F8DB1C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B292225-0076-4D2F-BD83-B87F468A2F21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B292225-0076-4D2F-BD83-B87F468A2F21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B292225-0076-4D2F-BD83-B87F468A2F21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B292225-0076-4D2F-BD83-B87F468A2F21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6D6F47C-C6C1-4B9B-B5E9-726CD4777DE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6D6F47C-C6C1-4B9B-B5E9-726CD4777DE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6D6F47C-C6C1-4B9B-B5E9-726CD4777DE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6D6F47C-C6C1-4B9B-B5E9-726CD4777DE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1CFD23B-256A-4BB4-9BBF-950A80B54221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1CFD23B-256A-4BB4-9BBF-950A80B54221}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1CFD23B-256A-4BB4-9BBF-950A80B54221}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1CFD23B-256A-4BB4-9BBF-950A80B54221}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53387B3C-C59F-4B51-BBCF-3C80C4F8DB1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53387B3C-C59F-4B51-BBCF-3C80C4F8DB1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53387B3C-C59F-4B51-BBCF-3C80C4F8DB1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53387B3C-C59F-4B51-BBCF-3C80C4F8DB1C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
