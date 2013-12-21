@@ -20,6 +20,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.TypeProvider05", "Demo
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.Common", "Demo.Common\Demo.Common.fsproj", "{15C140B9-7E9A-44B0-9AFC-4BA8ECEC413B}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.GPUTypes", "Demo.GPUTypes\Demo.GPUTypes.fsproj", "{0037682B-40EB-4754-85A8-E891CB4555F1}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.GPUTypes2", "Demo.GPUTypes2\Demo.GPUTypes2.fsproj", "{9E4ABF86-66D3-4D36-BA1D-019C85301D51}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +54,14 @@ Global
 		{15C140B9-7E9A-44B0-9AFC-4BA8ECEC413B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15C140B9-7E9A-44B0-9AFC-4BA8ECEC413B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15C140B9-7E9A-44B0-9AFC-4BA8ECEC413B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0037682B-40EB-4754-85A8-E891CB4555F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0037682B-40EB-4754-85A8-E891CB4555F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0037682B-40EB-4754-85A8-E891CB4555F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0037682B-40EB-4754-85A8-E891CB4555F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E4ABF86-66D3-4D36-BA1D-019C85301D51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E4ABF86-66D3-4D36-BA1D-019C85301D51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E4ABF86-66D3-4D36-BA1D-019C85301D51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E4ABF86-66D3-4D36-BA1D-019C85301D51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
