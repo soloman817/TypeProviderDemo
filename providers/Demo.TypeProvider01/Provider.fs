@@ -8,8 +8,6 @@ open Microsoft.FSharp.Quotations
 [<assembly: TypeProviderAssembly>]
 do ()
 
-let __break() = Diagnostics.Debugger.Break()
-
 let ns = "Demo.TypeProvider01"
 
 let stringParameter index defaultVal =

@@ -6,21 +6,12 @@ open System.Collections.Generic
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
 open Samples.FSharp.ProvidedTypes
+open Demo.Common
 
 [<assembly: TypeProviderAssembly>]
 do ()
 
 type VectorType = float[]
-
-type Cache() =
-    let cache = Dictionary<string, ProvidedTypeDefinition>()
-
-    member this.Get (key:string) (create:string -> ProvidedTypeDefinition) =
-        if cache.ContainsKey(key) then cache.[key]
-        else
-            let ty = create key
-            cache.Add(key, ty)
-            ty
 
 [<TypeProvider>]
 type Provider(cfg:TypeProviderConfig) as this =
@@ -87,7 +78,7 @@ type Provider(cfg:TypeProviderConfig) as this =
         vectorSetType.AddMembers vectorTypes
         vectorSetType
 
-    let cache = Cache()
+    let cache = Util.Cache()
 
     let factoryType =
         let ty = ProvidedTypeDefinition(asm, ns, "VectorSet", Some typeof<obj>)

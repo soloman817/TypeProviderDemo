@@ -43,11 +43,15 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Common\ProvidedTypes-head.fs">
-      <Link>ProvidedTypes-head.fs</Link>
-    </Compile>
     <Compile Include="Provider.fs" />
     <None Include="Script.fsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Demo.Common\Demo.Common.fsproj">
+      <Name>Demo.Common</Name>
+      <Project>{15c140b9-7e9a-44b0-9afc-4ba8ecec413b}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
