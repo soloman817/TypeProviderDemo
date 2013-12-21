@@ -89,9 +89,6 @@ type Provider() =
             printfn "  ReadAllBytes %s" assembly.ManifestModule.FullyQualifiedName
             IO.File.ReadAllBytes assembly.ManifestModule.FullyQualifiedName
 
-        member this.Dispose() =
-            printfn "ITypeProvider.Dispose()"
-
     interface IProvidedNamespace with
 
         member this.ResolveTypeName(typeName) =
@@ -109,3 +106,9 @@ type Provider() =
         member this.GetTypes() =
             printfn "IProvidedNamespace.GetTypes()"
             [| typeof<Vector> |]
+
+    interface IDisposable with
+
+        member this.Dispose() =
+            printfn "IDisposable.Dispose()"
+

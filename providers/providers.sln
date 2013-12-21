@@ -14,14 +14,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.TypeProvider02", "Demo
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.TypeProvider03", "Demo.TypeProvider03\Demo.TypeProvider03.fsproj", "{E1CFD23B-256A-4BB4-9BBF-950A80B54221}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonProviderImplementation", "CommonProviderImplementation", "{012F0A75-BF45-4C2C-9F31-E4C1DA63E73C}"
-	ProjectSection(SolutionItems) = preProject
-		CommonProviderImplementation\AssemblyReplacer.fs = CommonProviderImplementation\AssemblyReplacer.fs
-		CommonProviderImplementation\AssemblyResolver.fs = CommonProviderImplementation\AssemblyResolver.fs
-		CommonProviderImplementation\ProvidedTypes.fs = CommonProviderImplementation\ProvidedTypes.fs
-		CommonProviderImplementation\ProvidedTypes.fsi = CommonProviderImplementation\ProvidedTypes.fsi
-	EndProjectSection
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Demo.TypeProvider04", "Demo.TypeProvider04\Demo.TypeProvider04.fsproj", "{53387B3C-C59F-4B51-BBCF-3C80C4F8DB1C}"
 EndProject
 Global

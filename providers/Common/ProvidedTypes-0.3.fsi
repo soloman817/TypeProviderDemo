@@ -9,7 +9,7 @@
 // This code is a sample for use in conjunction with the F# 3.0 Developer Preview release of September 2011.
 
 
-namespace ProviderImplementation.ProvidedTypes
+namespace Samples.FSharp.ProvidedTypes
 
 open System
 open System.Reflection
@@ -30,7 +30,7 @@ type ProvidedConstructor =
     new : parameters: ProvidedParameter list -> ProvidedConstructor
 
     /// Add a 'System.Obsolete' attribute to this provided constructor
-    member AddObsoleteAttribute : message: string * ?isError: bool -> unit    
+    member AddObsoleteAttribute : message: string -> unit    
     
     /// Add XML documentation information to this provided constructor
     member AddXmlDoc          : xmlDoc: string -> unit   
@@ -44,21 +44,9 @@ type ProvidedConstructor =
     /// Set the quotation used to compute the implementation of invocations of this constructor.
     member InvokeCode         : (Quotations.Expr list -> Quotations.Expr) with set
 
-    /// FSharp.Data addition: this method is used by Debug.fs
-    member internal GetInvokeCodeInternal : bool -> (Quotations.Expr [] -> Quotations.Expr)
-
-    /// Set the target and arguments of the base constructor call. Only used for generated types.
-    member BaseConstructorCall : (Quotations.Expr list -> ConstructorInfo * Quotations.Expr list) with set
-
-    /// Set a flag indicating that the constructor acts like an F# implicit constructor, so the
-    /// parameters of the constructor become fields and can be accessed using Expr.GlobalVar with the
-    /// same name.
-    member IsImplicitCtor : bool with set
-
     /// Add definition location information to the provided constructor.
     member AddDefinitionLocation : line:int * column:int * filePath:string -> unit
     
-    member IsTypeInitializer : bool with get,set
 
 type ProvidedMethod = 
     inherit System.Reflection.MethodInfo
@@ -67,7 +55,7 @@ type ProvidedMethod =
     new : methodName:string * parameters: ProvidedParameter list * returnType: Type -> ProvidedMethod
 
     /// Add XML documentation information to this provided method
-    member AddObsoleteAttribute : message: string * ?isError: bool -> unit    
+    member AddObsoleteAttribute : message: string -> unit   
 
     /// Add XML documentation information to this provided constructor
     member AddXmlDoc            : xmlDoc: string -> unit    
@@ -90,8 +78,6 @@ type ProvidedMethod =
     /// Set the quotation used to compute the implementation of invocations of this method.
     member InvokeCode         : (Quotations.Expr list -> Quotations.Expr) with set
 
-    /// FSharp.Data addition: this method is used by Debug.fs
-    member internal GetInvokeCodeInternal : bool -> (Quotations.Expr [] -> Quotations.Expr)
 
     /// Add definition location information to the provided type definition.
     member AddDefinitionLocation : line:int * column:int * filePath:string -> unit
@@ -106,7 +92,7 @@ type ProvidedProperty =
     new  : propertyName: string * propertyType: Type * ?parameters:ProvidedParameter list -> ProvidedProperty
 
     /// Add a 'System.Obsolete' attribute to this provided property
-    member AddObsoleteAttribute : message: string * ?isError: bool -> unit    
+    member AddObsoleteAttribute : message: string -> unit 
 
     /// Add XML documentation information to this provided constructor
     member AddXmlDoc            : xmlDoc: string -> unit    
@@ -119,8 +105,7 @@ type ProvidedProperty =
     member AddXmlDocComputed   : xmlDocFunction: (unit -> string) -> unit   
     
     /// Get or set a flag indicating if the property is static.
-    /// FSharp.Data addition: the getter is used by Debug.fs
-    member IsStatic             : bool with get,set
+    member IsStatic             : bool with set
 
     /// Set the quotation used to compute the implementation of gets of this property.
     member GetterCode           : (Quotations.Expr list -> Quotations.Expr) with set
@@ -160,87 +145,31 @@ type ProvidedEvent =
     /// Add definition location information to the provided type definition.
     member AddDefinitionLocation : line:int * column:int * filePath:string -> unit
 
-/// Represents an erased provided field.
+/// Represents an erased provided property.
 type ProvidedLiteralField =
     inherit System.Reflection.FieldInfo
 
-    /// Create a new provided field. It is not initially associated with any specific provided type definition.
+    /// Create a new provided type. It is not initially associated with any specific provided type definition.
     new  : fieldName: string * fieldType: Type * literalValue: obj -> ProvidedLiteralField
 
-    /// Add a 'System.Obsolete' attribute to this provided field
-    member AddObsoleteAttribute : message: string * ?isError: bool -> unit    
+    /// Add a 'System.Obsolete' attribute to this provided literal field
+    member AddObsoleteAttribute : message: string -> unit    
 
-    /// Add XML documentation information to this provided field
+    /// Add XML documentation information to this provided constructor
     member AddXmlDoc            : xmlDoc: string -> unit    
 
-    /// Add XML documentation information to this provided field, where the computation of the documentation is delayed until necessary
+    /// Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
     member AddXmlDocDelayed   : xmlDocFunction: (unit -> string) -> unit   
     
-    /// Add XML documentation information to this provided field, where the computation of the documentation is delayed until necessary
+    /// Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
     /// The documentation is re-computed  every time it is required.
     member AddXmlDocComputed   : xmlDocFunction: (unit -> string) -> unit   
 
-    /// Add definition location information to the provided field.
+    /// Add definition location information to the provided type definition.
     member AddDefinitionLocation : line:int * column:int * filePath:string -> unit
 
-/// Represents an erased provided field.
-type ProvidedField =
-    inherit System.Reflection.FieldInfo
 
-    /// Create a new provided field. It is not initially associated with any specific provided type definition.
-    new  : fieldName: string * fieldType: Type -> ProvidedField
-
-    /// Add a 'System.Obsolete' attribute to this provided field
-    member AddObsoleteAttribute : message: string * ?isError: bool -> unit    
-
-    /// Add XML documentation information to this provided field
-    member AddXmlDoc            : xmlDoc: string -> unit    
-
-    /// Add XML documentation information to this provided field, where the computation of the documentation is delayed until necessary
-    member AddXmlDocDelayed   : xmlDocFunction: (unit -> string) -> unit   
-    
-    /// Add XML documentation information to this provided field, where the computation of the documentation is delayed until necessary
-    /// The documentation is re-computed  every time it is required.
-    member AddXmlDocComputed   : xmlDocFunction: (unit -> string) -> unit   
-
-    /// Add definition location information to the provided field definition.
-    member AddDefinitionLocation : line:int * column:int * filePath:string -> unit
-
-    member SetFieldAttributes : attributes : FieldAttributes -> unit
-
-/// FSharp.Data addition: SymbolKind is used by AssemblyReplacer.fs
-/// Represents the type constructor in a provided symbol type.
-type SymbolKind = 
-    | SDArray 
-    | Array of int 
-    | Pointer 
-    | ByRef 
-    | Generic of System.Type 
-    | FSharpTypeAbbreviation of (System.Reflection.Assembly * string * string[])
-
-/// FSharp.Data addition: ProvidedSymbolType is used by AssemblyReplacer.fs
-/// Represents an array or other symbolic type involving a provided type as the argument.
-/// See the type provider spec for the methods that must be implemented.
-/// Note that the type provider specification does not require us to implement pointer-equality for provided types.
-[<Class>]
-type ProvidedSymbolType =
-    inherit System.Type
-
-    /// Returns the kind of this symbolic type
-    member Kind : SymbolKind
-    /// Return the provided types used as arguments of this symbolic type
-    member Args : list<System.Type>
-
-
-/// Provides symbolic provided types
-[<Class>]
-type ProvidedTypeBuilder =
-    /// Like typ.MakeGenericType, but will also work with unit-annotated types
-    static member MakeGenericType: genericTypeDefinition: System.Type * genericArguments: System.Type list -> System.Type
-    /// Like methodInfo.MakeGenericMethod, but will also work with unit-annotated types and provided types
-    static member MakeGenericMethod: genericMethodDefinition: System.Reflection.MethodInfo * genericArguments: System.Type list -> MethodInfo
-
-/// Helps create erased provided unit-of-measure annotations.
+/// Represents an erased provided property.
 [<Class>]
 type ProvidedMeasureBuilder =
     
@@ -268,7 +197,7 @@ type ProvidedMeasureBuilder =
 
 
 /// Represents a provided static parameter.
-type ProvidedStaticParameter =
+type internal ProvidedStaticParameter =
     inherit System.Reflection.ParameterInfo
     new : parameterName: string * parameterType:Type * ?parameterDefaultValue:obj -> ProvidedStaticParameter
 
@@ -298,16 +227,13 @@ type ProvidedTypeDefinition =
     member DefineMethodOverride : methodInfoBody: ProvidedMethod * methodInfoDeclaration: MethodInfo -> unit
 
     /// Add a 'System.Obsolete' attribute to this provided type definition
-    member AddObsoleteAttribute : message: string * ?isError: bool -> unit    
+    member AddObsoleteAttribute : message: string -> unit 
 
     /// Add XML documentation information to this provided constructor
     member AddXmlDoc             : xmlDoc: string -> unit    
 
     /// Set the base type
     member SetBaseType             : Type -> unit    
-
-    /// Set the base type to a lazily evaluated value
-    member SetBaseTypeDelayed      : Lazy<Type option> -> unit    
 
     /// Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary.
     /// The documentation is only computed once.
@@ -319,9 +245,6 @@ type ProvidedTypeDefinition =
     
     /// Set the attributes on the provided type. This fully replaces the default TypeAttributes.
     member SetAttributes        : System.Reflection.TypeAttributes -> unit
-    
-    /// Reset the enclosing type (for generated nested types)
-    member ResetEnclosingType: enclosingType:System.Type -> unit
     
     /// Add a method, property, nested type or other member to a ProvidedTypeDefinition
     member AddMember         : memberInfo:MemberInfo      -> unit  
@@ -337,8 +260,6 @@ type ProvidedTypeDefinition =
     /// Add the types of the generated assembly as generative types, where types in namespaces get hierarchically positioned as nested types.
     member AddAssemblyTypesAsNestedTypesDelayed : assemblyFunction:(unit -> System.Reflection.Assembly) -> unit
 
-    member AddAssemblyTypesAsNestedTypes : assembly: System.Reflection.Assembly -> unit
-
     // Parametric types
     member DefineStaticParameters     : parameters: ProvidedStaticParameter list * instantiationFunction: (string -> obj[] -> ProvidedTypeDefinition) -> unit
 
@@ -348,6 +269,20 @@ type ProvidedTypeDefinition =
     /// Suppress System.Object entries in intellisense menus in instances of this provided type 
     member HideObjectMethods  : bool with set
 
+#if FX_NO_LOCAL_FILESYSTEM
+#else
+    /// Emit the given provided type definition and its nested type definitions into an assembly 
+    /// and adjust the 'Assembly' property of all provided type definitions to return that
+    /// assembly.
+    ///
+    /// The assembly is only emitted when the Assembly property on the root type is accessed for the first time.
+    /// The host F# compiler does this when processing a generative type declaration for the type.
+    member ConvertToGenerated : assemblyFileName: string  * ?reportAssembly: (Assembly * byte[] -> unit) -> unit
+
+    /// Register that a given file is a provided generated assembly
+    static member RegisterGenerated : fileName:string -> Assembly
+#endif
+
     /// Get or set a flag indicating if the ProvidedTypeDefinition is erased
     member IsErased : bool  with get,set
 
@@ -355,61 +290,22 @@ type ProvidedTypeDefinition =
     [<Experimental("SuppressRelocation is a workaround and likely to be removed")>]
     member SuppressRelocation : bool  with get,set
 
-    /// FSharp.Data addition: this method is used by Debug.fs
-    member MakeParametricType : name:string * args:obj[] -> ProvidedTypeDefinition
-
-    /// FSharp.Data addition: this method is used by Debug.fs and QuotationBuilder.fs
-    /// Emulate the F# type provider type erasure mechanism to get the 
-    /// actual (erased) type. We erase ProvidedTypes to their base type
-    /// and we erase array of provided type to array of base type. In the
-    /// case of generics all the generic type arguments are also recursively
-    /// replaced with the erased-to types
-    static member EraseType : t:Type -> Type
-
-/// A provided generated assembly
-type ProvidedAssembly =
-    new : assemblyFileName:string -> ProvidedAssembly
-    /// <summary>
-    /// Emit the given provided type definitions as part of the assembly 
-    /// and adjust the 'Assembly' property of all provided type definitions to return that
-    /// assembly.
-    ///
-    /// The assembly is only emitted when the Assembly property on the root type is accessed for the first time.
-    /// The host F# compiler does this when processing a generative type declaration for the type.
-    /// </summary>
-    /// <param name="enclosingTypeNames">An optional path of type names to wrap the generated types. The generated types are then generated as nested types.</param>
-    member AddTypes : types : ProvidedTypeDefinition list -> unit
-    member AddNestedTypes : types : ProvidedTypeDefinition list * enclosingGeneratedTypeNames: string list -> unit
-
-#if FX_NO_LOCAL_FILESYSTEM
-#else
-    /// Register that a given file is a provided generated assembly
-    static member RegisterGenerated : fileName:string -> Assembly
-#endif
-
-
 /// A base type providing default implementations of type provider functionality when all provided 
 /// types are of type ProvidedTypeDefinition.
 type TypeProviderForNamespaces =
 
     /// Initializes a type provider to provide the types in the given namespace.
-    internal new : namespaceName:string * types: ProvidedTypeDefinition list -> TypeProviderForNamespaces
+    new : namespaceName:string * types: ProvidedTypeDefinition list -> TypeProviderForNamespaces
 
     /// Initializes a type provider 
-    internal new : unit -> TypeProviderForNamespaces
+    new : unit -> TypeProviderForNamespaces
 
     /// Add a namespace of provided types.
-    member internal AddNamespace : namespaceName:string * types: ProvidedTypeDefinition list -> unit
-
-    /// FSharp.Data addition: this method is used by Debug.fs
-    /// Get all namespace with their provided types.
-    member Namespaces : (string * ProvidedTypeDefinition list) seq with get
+    member AddNamespace : namespaceName:string * types: ProvidedTypeDefinition list -> unit
 
     /// Invalidate the information provided by the provider
     member Invalidate : unit -> unit
 
-#if FX_NO_LOCAL_FILESYSTEM
-#else
     /// AssemblyResolve handler. Default implementation searches <assemblyname>.dll file in registered folders 
     abstract ResolveAssembly : System.ResolveEventArgs -> Assembly
     default ResolveAssembly : System.ResolveEventArgs -> Assembly
@@ -418,6 +314,5 @@ type TypeProviderForNamespaces =
     member RegisterProbingFolder : folder : string -> unit
     /// Registers location of RuntimeAssembly (from TypeProviderConfig) as probing folder
     member RegisterRuntimeAssemblyLocationAsProbingFolder : cfg : Core.CompilerServices.TypeProviderConfig -> unit
-#endif
 
     interface ITypeProvider

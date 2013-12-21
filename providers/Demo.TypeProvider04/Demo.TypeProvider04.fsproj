@@ -41,17 +41,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonProviderImplementation\ProvidedTypes.fsi">
-      <Link>ProvidedTypes.fsi</Link>
-    </Compile>
-    <Compile Include="..\CommonProviderImplementation\ProvidedTypes.fs">
-      <Link>ProvidedTypes.fs</Link>
-    </Compile>
-    <Compile Include="..\CommonProviderImplementation\AssemblyReplacer.fs">
-      <Link>AssemblyReplacer.fs</Link>
-    </Compile>
-    <Compile Include="..\CommonProviderImplementation\AssemblyResolver.fs">
-      <Link>AssemblyResolver.fs</Link>
+    <Compile Include="..\Common\ProvidedTypes-head.fs">
+      <Link>ProvidedTypes-head.fs</Link>
     </Compile>
     <Compile Include="Provider.fs" />
     <None Include="Script.fsx" />

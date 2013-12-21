@@ -1,86 +1,102 @@
-﻿namespace Demo.TypeProvider04
+﻿module Demo.TypeProvider04.Provider
 
 open System
-open System.IO
 open System.Reflection
 open System.Collections.Generic
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
-open ProviderImplementation
-open ProviderImplementation.ProvidedTypes
+open Samples.FSharp.ProvidedTypes
 
 [<assembly: TypeProviderAssembly>]
 do ()
 
-module Helper =
+type VectorType = float[]
 
-    let source = """
-    namespace GeneratedTypes
-    {
-        public class Dummy
-        {
-            private int _Data;
+type Cache() =
+    let cache = Dictionary<string, ProvidedTypeDefinition>()
 
-            public int Data
-            {
-                get
-                {
-                    return _Data;
-                }
-            }
-
-            public Dummy(int data)
-            {
-                this._Data = data;
-            }
-        }
-    }
-    """
-
-    let ( @@ ) a b = Path.Combine(a, b)
-
-open Helper
+    member this.Get (key:string) (create:string -> ProvidedTypeDefinition) =
+        if cache.ContainsKey(key) then cache.[key]
+        else
+            let ty = create key
+            cache.Add(key, ty)
+            ty
 
 [<TypeProvider>]
 type Provider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
 
-    let ns = "Demo.TypeProvider04"
     let asm = Assembly.GetExecutingAssembly()
-    //let asm, replacer = AssemblyResolver.init cfg
-    do printfn "%A" cfg.RuntimeAssembly
+    let ns = "Demo.TypeProvider04"
 
-    do this.RegisterRuntimeAssemblyLocationAsProbingFolder(cfg)
+    let makeVectorType (dim:int) =
+        let name = sprintf "Vector%dD" dim
+        let axisNames = [ 1 .. dim ] |> List.map (sprintf "Axis%d")
+        printfn "Creating %s ..." name
 
-    let dllpath = (Path.GetDirectoryName(cfg.RuntimeAssembly)) @@ "AAA.dll"
-    let generateVectorTypes (numVectorTypes:int) =
-        use fsc = new Microsoft.CSharp.CSharpCodeProvider()
-        printfn "%A" dllpath
-        let options = System.CodeDom.Compiler.CompilerParameters([||], dllpath)
-        let result = fsc.CompileAssemblyFromSource(options, [| source |])
-        if result.Errors.Count <> 0 then
-            for i = 0 to result.Errors.Count - 1 do
-                printfn "%A: %A" (result.Errors.Item(i).Line) (result.Errors.Item(i).ErrorText)
-            failwith "Compile fail"
-        printfn "%A" (result.CompiledAssembly.GetTypes())
-        //Diagnostics.Debugger.Break()
-        ProvidedAssembly.RegisterGenerated(dllpath)
+        let ty = ProvidedTypeDefinition(name, Some typeof<VectorType>)
+        ty.AddXmlDocDelayed(fun _ -> sprintf "The erased provided type %s." name)
 
-    let generatedAssembly = generateVectorTypes 10
-    let providedAssembly = ProvidedAssembly(dllpath)
+        let ctor =
+            let parameters = axisNames |> List.map (fun name -> ProvidedParameter(name, typeof<float>))
+            let invokeCode (args:Expr list) = Expr.NewArray(typeof<float>, args) 
+            ProvidedConstructor(parameters, InvokeCode = invokeCode)
+        ctor.AddXmlDocDelayed(fun _ -> sprintf "Constructor of %s." name)
+        ty.AddMember ctor
+
+        axisNames |> List.iteri (fun i name ->
+            let propertyType = typeof<float>
+            let getterCode (args:Expr list) =
+                let thisExpr = args.[0]
+                let indexExpr = Expr.Value(i)
+                <@@ (%%thisExpr : VectorType).[(%%indexExpr : int)] @@>
+            
+            let prop = ProvidedProperty(name, propertyType, GetterCode = getterCode)
+            prop.AddXmlDocDelayed(fun _ -> sprintf "Axis %s." name)
+            ty.AddMember prop
+            
+            // addition property
+            match i with
+            | 0 -> ProvidedProperty("X", propertyType, GetterCode = getterCode) |> Some
+            | 1 -> ProvidedProperty("Y", propertyType, GetterCode = getterCode) |> Some
+            | 2 -> ProvidedProperty("Z", propertyType, GetterCode = getterCode) |> Some
+            | 3 -> ProvidedProperty("W", propertyType, GetterCode = getterCode) |> Some
+            | _ -> None
+            |> Option.iter (fun prop ->
+                prop.AddXmlDocDelayed(fun _ -> sprintf "Axis %s." name)
+                ty.AddMember prop) )
+
+        let dotProductMethod =
+            let name = "DotProduct"
+            let parameters = ProvidedParameter("that", ty) :: []
+            let returnType = typeof<float>
+            let invokeCode (args:Expr list) =
+                let thisExpr = args.[0]
+                let thatExpr = args.[1]
+                <@@ ((%%thisExpr : VectorType), (%%thatExpr : VectorType)) ||> Array.map2 ( * ) |> Array.sum @@>
+            ProvidedMethod(name, parameters, returnType, InvokeCode = invokeCode)
+        dotProductMethod.AddXmlDocDelayed(fun _ -> "Dot product of two vector.")
+        ty.AddMember dotProductMethod
+
+        ty
+
+    let makeVectorSetType (dims:int) (name:string) =
+        printfn "Generating %s ..." name
+        let vectorTypes = [ 1 .. dims ] |> List.map makeVectorType
+        let vectorSetType = ProvidedTypeDefinition(asm, ns, name, Some typeof<obj>)
+        vectorSetType.AddMembers vectorTypes
+        vectorSetType
+
+    let cache = Cache()
 
     let factoryType =
-        let ty = ProvidedTypeDefinition(asm, ns, "Vector", Some typeof<obj>, HideObjectMethods=true)
-        let parameters = ProvidedStaticParameter("NumberOfVectorTypes", typeof<int>) :: []
-        let instantiate (name:string) (b:obj[]) =
-            let numVectorTypes = unbox<int> b.[0]
-            //let generatedAssembly = generateVectorTypes numVectorTypes
-            let ty = ProvidedTypeDefinition(asm, ns, name, Some typeof<obj>)
-            ty.AddAssemblyTypesAsNestedTypes(generatedAssembly)
-            //providedAssembly.AddTypes(ty::[])
-            ty
+        let ty = ProvidedTypeDefinition(asm, ns, "VectorSet", Some typeof<obj>)
+        let parameters = ProvidedStaticParameter("Dims", typeof<int>) :: []
+        let instantiate (name:string) (parameters:obj[]) =
+            let dims = parameters.[0] :?> int
+            cache.Get name (makeVectorSetType dims)
         ty.DefineStaticParameters(parameters, instantiate)
-        //providedAssembly.AddTypes(ty::[])
         ty
 
     do this.AddNamespace(ns, factoryType :: [])
+

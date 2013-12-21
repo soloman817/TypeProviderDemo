@@ -5,7 +5,7 @@ open System.Reflection
 open System.Collections.Generic
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
-open ProviderImplementation.ProvidedTypes
+open Samples.FSharp.ProvidedTypes
 
 [<assembly: TypeProviderAssembly>]
 do ()
@@ -89,9 +89,6 @@ type Provider() =
             printfn "  ReadAllBytes %s" assembly.ManifestModule.FullyQualifiedName
             IO.File.ReadAllBytes assembly.ManifestModule.FullyQualifiedName
 
-        member this.Dispose() =
-            printfn "ITypeProvider.Dispose()"
-
     interface IProvidedNamespace with
 
         member this.ResolveTypeName(typeName) =
@@ -109,5 +106,10 @@ type Provider() =
         member this.GetTypes() =
             printfn "IProvidedNamespace.GetTypes()"
             providedTypes
+
+    interface IDisposable with
+
+        member this.Dispose() =
+            printfn "IDisposable.Dispose()"
 
 

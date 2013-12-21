@@ -5,8 +5,7 @@ open System.Reflection
 open System.Collections.Generic
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
-open ProviderImplementation
-open ProviderImplementation.ProvidedTypes
+open Samples.FSharp.ProvidedTypes
 
 [<assembly: TypeProviderAssembly>]
 do ()
@@ -17,7 +16,7 @@ type VectorType = Map<string, float>
 type Provider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
 
-    let asm, replacer = AssemblyResolver.init cfg
+    let asm = Assembly.GetExecutingAssembly()
     let ns = "Demo.TypeProvider03"
 
     let makeVectorType (axisNames:string list) =
