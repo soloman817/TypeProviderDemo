@@ -34,6 +34,13 @@
     <DocumentationFile>bin\Release\TypeProviderTest.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Alea.CUDA">
+      <HintPath>..\packages\Alea.cuBase.1.2.718\lib\net40\Alea.CUDA.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Demo.GPUTypes">
+      <HintPath>..\..\providers\Demo.GPUTypes\bin\Debug\Demo.GPUTypes.dll</HintPath>
+    </Reference>
     <Reference Include="Demo.TypeProvider01">
       <HintPath>..\..\providers\Demo.TypeProvider01\bin\Debug\Demo.TypeProvider01.dll</HintPath>
     </Reference>
@@ -45,6 +52,9 @@
     </Reference>
     <Reference Include="Demo.TypeProvider04">
       <HintPath>..\..\providers\Demo.TypeProvider04\bin\Debug\Demo.TypeProvider04.dll</HintPath>
+    </Reference>
+    <Reference Include="Demo.TypeProvider05">
+      <HintPath>..\..\providers\Demo.TypeProvider05\bin\Debug\Demo.TypeProvider05.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -63,6 +73,7 @@
     <Compile Include="TypeProvider02.fs" />
     <Compile Include="TypeProvider03.fs" />
     <Compile Include="TypeProvider04.fs" />
+    <Compile Include="TypeProvider05.fs" />
     <None Include="Script.fsx" />
     <None Include="packages.config" />
   </ItemGroup>

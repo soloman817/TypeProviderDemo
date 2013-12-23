@@ -1,4 +1,9 @@
 ﻿namespace Demo.GPUTypes2
 
-type Class1() = 
-    member this.X = "F#"
+open Demo.GPUTypes
+
+//type Combine =
+//    {
+//        Pair : Pair
+//        Triple : Triple
+//    }
