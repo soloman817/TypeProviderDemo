@@ -919,6 +919,7 @@ module GlobalProvidedAssemblyElementsTable =
 
 type ProvidedTypeDefinition(container:TypeContainer,className : string, baseType  : Type option) as this =
     inherit Type()
+
     // state
     let mutable attributes   = 
         TypeAttributes.Public ||| 

@@ -7,26 +7,6 @@ open Samples.FSharp.ProvidedTypes
 
 let __break() = Diagnostics.Debugger.Break()
 
-type Cache() =
-    let cache = Dictionary<string, ProvidedTypeDefinition>()
-
-    member this.Get (key:string) (create:string -> ProvidedTypeDefinition) =
-        if cache.ContainsKey(key) then cache.[key]
-        else
-            let ty = create key
-            cache.Add(key, ty)
-            ty
-
-type Cache2() =
-    let cache = Dictionary<string, Type>()
-
-    member this.Get (key:string) (create:string -> Type) =
-        if cache.ContainsKey(key) then cache.[key]
-        else
-            let ty = create key
-            cache.Add(key, ty)
-            ty
-
 let dumpTypeProviderConfig(cfg:TypeProviderConfig) =
     printfn "TypeProviderConfig ==========="
     printfn "IsHostedExecution: %A" cfg.IsHostedExecution
@@ -39,3 +19,13 @@ let dumpTypeProviderConfig(cfg:TypeProviderConfig) =
     printfn "SystemRuntimeAssemblyVersion: %A" cfg.SystemRuntimeAssemblyVersion
     printfn "TemporaryFolder: %s" cfg.TemporaryFolder
     printfn "=============================="
+
+//let tryMakeGenerative1 (ty:ProvidedTypeDefinition) (providedAssembly:ProvidedAssembly option) =
+//    providedAssembly |> Option.iter (fun providedAssembly ->
+//        ty.IsErased <- false
+//        //ty.SuppressRelocation <- false
+//        providedAssembly.AddTypes(ty::[]))
+//
+//let tryMakeGenerative2 (ty:ProvidedTypeDefinition) (providedAssembly:ProvidedAssembly option) =
+//    providedAssembly |> Option.iter (fun providedAssembly ->
+//        ty.IsErased <- false)

@@ -19,6 +19,7 @@ type Provider(cfg:TypeProviderConfig) as this =
 
     let asm = Assembly.GetExecutingAssembly()
     let ns = "Demo.TypeProvider04"
+    let cache = Cache()
 
     let makeVectorType (dim:int) =
         let name = sprintf "Vector%dD" dim
@@ -77,8 +78,6 @@ type Provider(cfg:TypeProviderConfig) as this =
         let vectorSetType = ProvidedTypeDefinition(asm, ns, name, Some typeof<obj>)
         vectorSetType.AddMembers vectorTypes
         vectorSetType
-
-    let cache = Util.Cache()
 
     let factoryType =
         let ty = ProvidedTypeDefinition(asm, ns, "VectorSet", Some typeof<obj>)
