@@ -2,8 +2,10 @@
 
 open System
 open System.IO
+open System.Reflection
 open System.Collections.Generic
 open System.Text.RegularExpressions
+open Microsoft.FSharp.Quotations
 open Samples.FSharp.ProvidedTypes
 open Demo.Common
 
@@ -43,7 +45,7 @@ and [<AbstractClass>] Entity(package:Package, ty:Type) =
         let indentstr = String.replicate ident " "
         printfn "%s* %s" indentstr this.Name
 
-    abstract TryGenerateType : unit -> ProvidedTypeDefinition option
+    abstract TryGenerateHelperType : unit -> ProvidedTypeDefinition option
 
 and Package(parent:Package option, name:string) =
     let children = Dictionary<string, Package>()
@@ -112,22 +114,15 @@ and Package(parent:Package option, name:string) =
         entities.Values |> Seq.iter (fun entity -> entity.Dump(indent + 2))
         children.Values |> Seq.iter (fun package -> package.Dump(indent + 4))
 
-    abstract TryGenerateType : unit -> ProvidedTypeDefinition option
-
-    member this.GenerateNestedTypes() =
-        let packageTypes = children.Values |> Seq.choose (fun package -> package.TryGenerateType()) |> Seq.toList
-        let entityTypes = entities.Values |> Seq.choose (fun entity -> entity.TryGenerateType()) |> Seq.toList
+    member this.GenerateNestedHelperTypes() =
+        let packageTypes = children.Values |> Seq.choose (fun package -> package.TryGenerateHelperType()) |> Seq.toList
+        let entityTypes = entities.Values |> Seq.choose (fun entity -> entity.TryGenerateHelperType()) |> Seq.toList
         packageTypes @ entityTypes
 
-    default this.TryGenerateType() =
-        let nestedTypes = this.GenerateNestedTypes()
-        if List.isEmpty nestedTypes then None
+    member this.TryGenerateHelperType() =
+        let nestedHelperTypes = this.GenerateNestedHelperTypes()
+        if List.isEmpty nestedHelperTypes then None
         else
             let ty = ProvidedTypeDefinition(name, Some typeof<obj>, IsErased = false)
-            ty.AddMembers nestedTypes
+            ty.AddMembers nestedHelperTypes
             Some ty
-
-    member this.GenerateType() =
-        match this.TryGenerateType() with
-        | Some ty -> ty
-        | None -> failwith "No type generated."

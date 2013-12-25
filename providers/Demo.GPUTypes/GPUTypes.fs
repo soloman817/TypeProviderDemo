@@ -6,9 +6,9 @@ type Pair =
         Second : float
     }
 
-//type Triple =
-//    {
-//        First : float
-//        Second : float
-//        Third : float
-//    }
+type Triple =
+    {
+        First : float
+        Second : float
+        Third : float
+    }

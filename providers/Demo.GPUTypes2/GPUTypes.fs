@@ -2,8 +2,8 @@
 
 open Demo.GPUTypes
 
-//type Combine =
-//    {
-//        Pair : Pair
-//        Triple : Triple
-//    }
+type Combine =
+    {
+        Pair : Pair
+        Triple : Triple
+    }

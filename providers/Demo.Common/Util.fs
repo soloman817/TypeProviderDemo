@@ -29,3 +29,4 @@ let dumpTypeProviderConfig(cfg:TypeProviderConfig) =
 //let tryMakeGenerative2 (ty:ProvidedTypeDefinition) (providedAssembly:ProvidedAssembly option) =
 //    providedAssembly |> Option.iter (fun providedAssembly ->
 //        ty.IsErased <- false)
+

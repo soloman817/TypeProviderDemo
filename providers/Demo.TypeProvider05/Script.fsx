@@ -6,53 +6,54 @@
 [<Literal>]
 let namespaces = "Demo.GPUTypes"
     
-type GPUHelper = Demo.TypeProvider05.GPUHelper<namespaces>
+type GPUHelper = Demo.TypeProvider05.HelperProvider<namespaces>
+
 
 open System.Reflection
 open Alea.CUDA
 open Alea.CUDA.Utilities
 
-let test () =
+let test() =
     let template = cuda {
-        let! kernel1 =
-            <@ fun (output:deviceptr<float>) (first:deviceptr<float>) (second:deviceptr<float>) ->
-                let tid = threadIdx.x
-                output.[tid] <- first.[tid] + second.[tid] @>
-            |> Compiler.DefineKernel
-            
-        let! kernel2 =
+        let! kernel =
             <@ fun (output:deviceptr<float>) (input:GPUHelper.Demo.GPUTypes.PairHelper.Seq) ->
-                let tid = threadIdx.x
-                output.[tid] <- input.First.[tid] + input.Second.[tid] @>
+                let start = blockIdx.x * blockDim.x + threadIdx.x
+                let stride = gridDim.x * blockDim.x
+                let mutable i = start
+                while i < input.Length do
+                    output.[i] <- input.First.[i] + input.Second.[i]
+                    i <- i + stride @>
             |> Compiler.DefineKernel
-            
+
         return Entry(fun program ->
             let worker = program.Worker
-            let kernel1 = program.Apply kernel1
+            let kernel = program.Apply kernel
 
-            let run1() =
-                let n = 512
-                let first = Array.init n (TestUtil.genRandomDouble -100.0 100.0)
-                let second = Array.init n (TestUtil.genRandomDouble -50.0 50.0)
-                let hOutput = (first, second) ||> Array.map2 ( + )
-                
-                use first = worker.Malloc(first)
-                use second = worker.Malloc(second)
-                use dOutput = worker.Malloc<float>(n)
-                let pair = GPUHelper.Demo.GPUTypes.PairHelper.Seq(n, first.Ptr, second.Ptr)
-                
-                let lp = LaunchParam(1, pair.Length)
-                kernel1.Launch lp dOutput.Ptr pair.First pair.Second
-                let dOutput = dOutput.Gather()
-                
-                printfn "%A" dOutput
+            let run (n:int) =
+                let hInput = Array.init n (fun i ->
+                    { Demo.GPUTypes.Pair.First = TestUtil.genRandomDouble -100.0 100.0 i
+                      Demo.GPUTypes.Pair.Second = TestUtil.genRandomDouble -50.0 50.0 i })
+                let hOutput = hInput |> Array.map (fun pair -> pair.First + pair.Second)
 
-            let run() =
-                run1()
+                use blob = new Blob(worker)
+                let dInput = GPUHelper.CreateSeqBlob(blob, hInput)
+//                
+//                
+//                use first = worker.Malloc(first)
+//                use second = worker.Malloc(second)
+//                use dOutput = worker.Malloc<float>(n)
+//                let pairs = GPUHelper.Demo.GPUTypes.PairHelper.Seq(n, first.Ptr, second.Ptr)
+//                
+//                let lp = LaunchParam(16, 512)
+//                kernel.Launch lp dOutput.Ptr pairs
+//                let dOutput = dOutput.Gather()
+//
+//                assertArrayEqual None hOutput dOutput
+                ()
 
             run ) }
 
     use program = template |> Compiler.load Worker.Default
-    program.Run()
+    program.Run 100
     
 test()

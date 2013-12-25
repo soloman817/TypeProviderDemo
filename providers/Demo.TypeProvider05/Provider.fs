@@ -18,25 +18,27 @@ open Demo.TypeProvider05.Entities
 [<assembly: TypeProviderAssembly>]
 do ()
 
-type [<Sealed>] RootPackage private (name:string, thisAssembly:Assembly, providedAssembly:ProvidedAssembly, providedNamespace:string) =
+let blobErased = false
+
+type [<Sealed>] RootPackage private (name:string) =
     inherit Package(None, name) 
 
     let registry = EntityRegistry()
 
     override this.EntityRegistry = registry
 
-    override this.TryGenerateType() =
-        let ty = ProvidedTypeDefinition(thisAssembly, providedNamespace, name, Some typeof<obj>, IsErased = false)
+    member this.GenerateHelperType(thisAssembly:Assembly, providedNamespace:string, name:string, providedAssembly:ProvidedAssembly) =
+        let ty = ProvidedTypeDefinition(thisAssembly, providedNamespace, name, Some typeof<obj>, IsErased = false, SuppressRelocation = false)
         providedAssembly.AddTypes(ty :: [])
 
-        let nestedTypes = this.GenerateNestedTypes()
-        ty.AddMembers nestedTypes
+        let nestedHelperTypes = this.GenerateNestedHelperTypes()
+        ty.AddMembers nestedHelperTypes
 
-        Some ty
+        ty
 
-    static member Create(name:string, thisAssembly:Assembly, providedAssembly:ProvidedAssembly, providedNamespace:string, namespaces:string[], assemblies:Assembly[]) =
+    static member Create(name:string, namespaces:string[], assemblies:Assembly[]) =
         let namespaces = namespaces |> Set.ofArray
-        let rootPackage = RootPackage(name, thisAssembly, providedAssembly, providedNamespace)
+        let rootPackage = RootPackage(name)
         let registry = rootPackage.EntityRegistry
 
         RecordEntity.Register(registry)
@@ -51,43 +53,79 @@ type [<Sealed>] RootPackage private (name:string, thisAssembly:Assembly, provide
 
         rootPackage
 
+type HelperInfo =
+    {
+        Name : string
+        Namespaces : string
+        DllPath : string
+        mutable ProvidedType : ProvidedTypeDefinition option
+    }
+
+    member this.Dump() =
+        printfn "* Name       : %s" this.Name
+        printfn "* Namespaces : %s" this.Namespaces
+        printfn "* DllPath    : %s" this.DllPath
+
+type BlobInfo =
+    {
+        Name : string
+        DllPath : string
+        Helper : HelperInfo
+        mutable ProvidedType : ProvidedTypeDefinition option
+    }
+
+    member this.Dump() =
+        printfn "* Name              : %s" this.Name
+        printfn "* DllPath           : %s" this.DllPath
+        printfn "* Helper.Name       : %s" this.Helper.Name
+        printfn "* Helper.Namespaces : %s" this.Helper.Namespaces
+        printfn "* Helper.DllPath    : %s" this.Helper.DllPath
+
 [<TypeProvider>]
 type Provider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
 
     let thisAssembly = Assembly.GetExecutingAssembly()
     let providedNamespace = "Demo.TypeProvider05"
-    let cache = Cache()
-    let tmpdlls = List<string>()
+    let helpers = Dictionary<string, HelperInfo>()
 
-    let makeHelpers (namespaces:string) (name:string) =
-        printfn "Generating %s ..." name
-        //let tmpdll = @"C:\Users\Xiang\Desktop\AAA.dll"
-        let tmpdll = Path.ChangeExtension(Path.GetTempFileName(), ".dll")
-        tmpdlls.Add(tmpdll)
-        printfn "TempDll: %s" tmpdll
-        let providedAssembly = ProvidedAssembly(tmpdll)
-        let namespaces = Regex.Split(namespaces, ";")
-        let assemblies = cfg.ReferencedAssemblies |> Array.map Assembly.LoadFile
-        let rootPackage = RootPackage.Create(name, thisAssembly, providedAssembly, providedNamespace, namespaces, assemblies)
-        rootPackage.Dump()
-        rootPackage.GenerateType()
-
-    let factoryType =
-        let ty = ProvidedTypeDefinition(thisAssembly, providedNamespace, "GPUHelper", Some typeof<obj>, IsErased = false)
-        let parameters = ProvidedStaticParameter("Namespaces", typeof<string>) :: []
-        let instantiate (name:string) (parameters:obj[]) =
+    let generateHelper (name:string) (parameters:obj[]) =
+        if helpers.ContainsKey(name) then helpers.[name].ProvidedType.Value
+        else
             let namespaces = parameters.[0] :?> string
-            printfn "Getting %A..." name
-            cache.Get name (makeHelpers namespaces)
-        ty.DefineStaticParameters(parameters, instantiate)
+
+            printfn "Generating %s ..." name
+            let helperInfo : HelperInfo =
+                {
+                    Name = name
+                    Namespaces = namespaces
+                    //DllPath = @"C:\Users\Xiang\Desktop\AAA.dll"
+                    DllPath = Path.ChangeExtension(Path.GetTempFileName(), ".dll")
+                    ProvidedType = None
+                }
+            helperInfo.Dump()
+            helpers.Add(name, helperInfo)
+
+            let providedAssembly = ProvidedAssembly(helperInfo.DllPath)
+            let namespaces = Regex.Split(namespaces, ";")
+            let assemblies = cfg.ReferencedAssemblies |> Array.map Assembly.LoadFile
+            let rootPackage = RootPackage.Create(name, namespaces, assemblies)
+            rootPackage.Dump()
+            let providedType = rootPackage.GenerateHelperType(thisAssembly, providedNamespace, name, providedAssembly)
+            helperInfo.ProvidedType <- Some providedType
+            providedType
+
+    let helperProvider =
+        let ty = ProvidedTypeDefinition(thisAssembly, providedNamespace, "HelperProvider", Some typeof<obj>, IsErased = false)
+        let parameters = ProvidedStaticParameter("Namespaces", typeof<string>) :: []
+        ty.DefineStaticParameters(parameters, generateHelper)
         ty
 
-    do this.AddNamespace(providedNamespace, factoryType :: [])
+    do this.AddNamespace(providedNamespace, helperProvider :: [])
 
     member this.Dispose(disposing:bool) =
-        tmpdlls |> Seq.iter (fun tmpdll -> try File.Delete(tmpdll) with ex -> ())
-        tmpdlls.Clear()
+        helpers.Values |> Seq.iter (fun info -> try File.Delete(info.DllPath) with ex -> ())
+        helpers.Clear()
 
     member this.Dispose() =
         this.Dispose(true)

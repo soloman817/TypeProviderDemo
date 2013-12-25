@@ -41,6 +41,9 @@
     <Reference Include="Demo.GPUTypes">
       <HintPath>..\..\providers\Demo.GPUTypes\bin\Debug\Demo.GPUTypes.dll</HintPath>
     </Reference>
+    <Reference Include="Demo.GPUTypes2">
+      <HintPath>..\..\providers\Demo.GPUTypes2\bin\Debug\Demo.GPUTypes2.dll</HintPath>
+    </Reference>
     <Reference Include="Demo.TypeProvider01">
       <HintPath>..\..\providers\Demo.TypeProvider01\bin\Debug\Demo.TypeProvider01.dll</HintPath>
     </Reference>
